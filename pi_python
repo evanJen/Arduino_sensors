@@ -1,0 +1,113 @@
+import serial
+
+import pygame, sys
+from pygame.locals import *
+
+try:
+    arduino = serial.Serial("/dev/cu.usbmodem1431", timeout=1)
+except:
+    print("nah")
+
+rawdata = []
+count = 0
+
+#while True:
+#	print(str(arduino.readline()))
+#rawdata.append(str(arduino.readline()))
+#count+=1
+#print(rawdata)
+
+x = 0
+y = 100
+
+
+def main():
+    pygame.init()
+
+    DISPLAY = pygame.display.set_mode((600, 400), 0, 32)
+
+    WHITE = (255, 255, 255)
+    BLUE = (46,139,87)
+
+    DISPLAY.fill(WHITE)
+
+    y0 = 0
+    y1 = 0
+    y2 = 0
+    y3 = 0
+    y4 = 0
+    y5 = 0
+
+    sensor = -1
+
+    while True:
+
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+        ultra = str(arduino.readline())
+        #print(ultra)
+
+        #ultra = ultra.replace('b','')
+
+        ultra = ultra.translate({ord(i): None for i in 'brn\'\\'})
+        if ("c" in ultra):
+            sensor = 0
+        if ("d" in ultra):
+            sensor = 1
+        if ("e" in ultra):
+            sensor = 2
+        if ("f" in ultra):
+            sensor = 3
+        if ("g" in ultra):
+            sensor = 4
+        if ("h" in ultra):
+            sensor = 5
+     
+        ultra = ultra.translate({ord(i): None for i in 'cdefgh'})
+
+        try:
+            ultra = float(ultra)
+            ultra = int(ultra)
+        except:
+            ultra = 0
+
+        if (ultra > 100):
+            ultra = 100
+
+        ultra = ultra * 4
+
+        if (sensor == 0):
+            y0 = ultra
+        if (sensor == 1):
+            y1 = ultra
+        if (sensor == 2):
+            y2 = ultra
+        if (sensor == 3):
+            y3 = ultra
+        if (sensor == 4):
+            y4 = ultra
+        if (sensor == 5):
+            y5 = ultra
+     
+
+        #print(ultra)
+        #print(type(ultra))
+
+        pygame.draw.rect(DISPLAY, WHITE, (0, 0, 600, 400))
+        pygame.draw.rect(DISPLAY, BLUE, (0, 400 - y0, 100, y0))
+        pygame.draw.rect(DISPLAY, BLUE, (100, 400 - y1, 100, y1))
+        pygame.draw.rect(DISPLAY, BLUE, (200, 400 - y2, 100, y2))
+        pygame.draw.rect(DISPLAY, BLUE, (300, 400 - y3, 100, y3))
+        pygame.draw.rect(DISPLAY, BLUE, (400, 400 - y4, 100, y4))
+        pygame.draw.rect(DISPLAY, BLUE, (500, 400 - y5, 100, y5))
+       	print(y5)
+
+
+        pygame.display.update()
+        print()
+
+
+main()
